@@ -26,8 +26,19 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-)w$2=v!7%pj_=q4#_os#g@zw#)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
+allowed_hosts = os.getenv('ALLOWED_HOSTS', '*')
+if allowed_hosts.strip() == '':
+    allowed_hosts = '*'
+
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',') if host.strip()]
+
+render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if render_host and render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(render_host)
+
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()]
+if render_host and f'https://{render_host}' not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{render_host}')
 
 # Single fixed login used by this application. Change these values before
 # deploying; this is not a replacement for Django's user authentication.

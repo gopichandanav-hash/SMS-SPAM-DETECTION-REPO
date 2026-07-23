@@ -1,10 +1,20 @@
 
 from django.urls import path
 
-from .views import LoginView, HomePageView, ReadMessageAPIView, GetReportMessageAPIView, ViewCase, ProfileView, AnalyticsView
+from .views import (
+    AnalyticsView,
+    GetReportMessageAPIView,
+    HomePageView,
+    LoginView,
+    ProfileView,
+    ReadMessageAPIView,
+    RootView,
+    ViewCase,
+)
 
 urlpatterns = [
-    path('', LoginView.as_view(), name='login'),
+    path('', RootView.as_view(), name='root'),
+    path('login/', LoginView.as_view(), name='login'),
     path('homepage/', HomePageView.as_view(), name='homepage'),
     path('viewcases/', ViewCase.as_view(), name='viewcases'),
     path('profile/', ProfileView.as_view(), name='profile'),
