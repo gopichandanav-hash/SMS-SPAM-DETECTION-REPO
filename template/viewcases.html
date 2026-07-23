@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Cases</title>
+    <style>
+        :root {
+            --bg: #f5f7ff;
+            --panel: #ffffff;
+            --panel-strong: #eef2ff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --accent: #4f46e5;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, system-ui, sans-serif;
+            background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%);
+            color: var(--text);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: #3730a3;
+            color: white;
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .sidebar-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .sidebar-top h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            letter-spacing: 0.04em;
+        }
+
+        .logout-link {
+            color: white;
+            background: rgba(255,255,255,0.12);
+            padding: 10px 14px;
+            border-radius: 14px;
+            text-decoration: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 10px 14px;
+            background: #4f46e5;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+        }
+
+        .main {
+            padding: 32px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: clamp(2rem, 3vw, 3rem);
+            line-height: 1.05;
+        }
+
+        .header p {
+            margin: 10px 0 0;
+            max-width: 620px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .message-list {
+            margin-top: 24px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--panel-strong);
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        td {
+            color: var(--text);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #fee2e2;
+            color: #b91c1c;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 880px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { flex-direction: row; justify-content: space-between; align-items: center; }
+            .main { padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <h2>Spam Messages</h2>
+                <a href="/" class="logout-link">Logout</a>
+            </div>
+        </aside>
+
+        <main class="main">
+            <section class="header">
+                <h1>Spam messages</h1>
+                <p>These are the suspicious SMS messages flagged for review.</p>
+            </section>
+
+            <section class="message-list">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Spam Message</th>
+                            <th>Sender</th>
+                            <th>Date & Time</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if reports %}
+                            {% for report in reports %}
+                                <tr>
+                                    <td>
+                                        <span class="badge">{{ report.category|default:"Spam" }}</span><br>
+                                        {{ report.message }}
+                                    </td>
+                                    <td>{{ report.sender|default:"Unknown" }}</td>
+                                    <td>{{ report.created_at|date:"d/M/Y H:i" }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3">No spam reports have been stored yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+                <a href="/homepage/" class="back-link">Back to Home</a>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

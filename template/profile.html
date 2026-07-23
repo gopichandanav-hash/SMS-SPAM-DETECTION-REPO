@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Inter, Arial, sans-serif;
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .profile-card {
+            background: white;
+            color: #111827;
+            width: 100%;
+            max-width: 420px;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #2563eb;
+            text-align: center;
+        }
+
+        .detail {
+            margin: 14px 0;
+            padding: 12px 14px;
+            background: #f3f4f6;
+            border-radius: 10px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        .back-btn:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-card">
+        <h2>Admin Profile</h2>
+        <div class="detail"><span class="label">Name:</span> Admin</div>
+        <div class="detail"><span class="label">Email:</span> sample@gmail.com</div>
+        <div class="detail"><span class="label">Role:</span> System Administrator</div>
+        <div class="detail"><span class="label">Status:</span> Active</div>
+        
+
+        <a href="/homepage/" class="back-btn">Back</a>
+    </div>
+</body>
+</html>
