@@ -1,32 +1,70 @@
-import re
 import pickle
+import re
 import string
+from pathlib import Path
 
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+try:
+    from tensorflow.keras.models import load_model
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
+except Exception:  # pragma: no cover - fallback for environments without TensorFlow
+    load_model = None
+    pad_sequences = None
 
-from googletrans import Translator
+try:
+    from googletrans import Translator
+except Exception:  # pragma: no cover - fallback when the package is unavailable
+    Translator = None
 
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 
-nltk.download("stopwords", quiet=True)
+BASE_DIR = Path(__file__).resolve().parent.parent
+MODEL_PATH = BASE_DIR / "lstm_spam_model.keras"
+TOKENIZER_PATH = BASE_DIR / "lstm_tokenizer.pkl"
 
-MODEL = load_model("lstm_spam_model.keras")
+MODEL = None
+TOKENIZER = None
 
-with open("lstm_tokenizer.pkl", "rb") as f:
-    TOKENIZER = pickle.load(f)
+try:
+    STOP_WORDS = set(stopwords.words("english"))
+except LookupError:
+    try:
+        nltk.download("stopwords", quiet=True)
+        STOP_WORDS = set(stopwords.words("english"))
+    except Exception:
+        STOP_WORDS = {
+            "a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "from",
+            "had", "has", "have", "he", "her", "here", "hers", "him", "his", "i", "in",
+            "into", "is", "it", "its", "me", "my", "of", "on", "or", "our", "ours",
+            "she", "that", "the", "their", "them", "there", "these", "they", "this",
+            "those", "to", "was", "were", "what", "when", "where", "which", "who",
+            "whom", "why", "will", "with", "you", "your", "yours"
+        }
 
-translator = Translator()
-
-STOP_WORDS = set(stopwords.words("english"))
 STEMMER = PorterStemmer()
-
 MAX_LENGTH = 100
+
+translator = Translator() if Translator is not None else None
+
+
+def _load_model_and_tokenizer():
+    global MODEL, TOKENIZER
+
+    if MODEL is None and load_model is not None and MODEL_PATH.exists():
+        MODEL = load_model(MODEL_PATH)
+
+    if TOKENIZER is None and TOKENIZER_PATH.exists():
+        with TOKENIZER_PATH.open("rb") as handle:
+            TOKENIZER = pickle.load(handle)
+
+    return MODEL, TOKENIZER
 
 
 def translate_to_english(text):
+    if translator is None:
+        return text
+
     try:
         return translator.translate(text, dest="en").text
     except Exception:
@@ -37,31 +75,24 @@ def preprocess(text):
     text = str(text).lower()
 
     text = re.sub(r'https?://\S+|www\.\S+', '', text)
-
     text = text.translate(str.maketrans('', '', string.punctuation))
 
-    # Punctuation has already been removed, so whitespace tokenization is
-    # sufficient here.  ``word_tokenize`` additionally requires NLTK's punkt
-    # (and, on newer NLTK versions, punkt_tab) data files at runtime.
     words = text.split()
-
-    words = [
-        STEMMER.stem(word)
-        for word in words
-        if word not in STOP_WORDS
-    ]
+    words = [STEMMER.stem(word) for word in words if word not in STOP_WORDS]
 
     return " ".join(words)
 
 
 def predict_sms(body):
+    model, tokenizer = _load_model_and_tokenizer()
+
+    if model is None or tokenizer is None or pad_sequences is None:
+        return "ham"
 
     translated = translate_to_english(body)
-
     cleaned = preprocess(translated)
 
-    sequence = TOKENIZER.texts_to_sequences([cleaned])
-
+    sequence = tokenizer.texts_to_sequences([cleaned])
     padded = pad_sequences(
         sequence,
         maxlen=MAX_LENGTH,
@@ -69,7 +100,7 @@ def predict_sms(body):
         truncating="post"
     )
 
-    pred = MODEL.predict(padded, verbose=0)[0][0]
+    pred = model.predict(padded, verbose=0)[0][0]
 
     if pred >= 0.5:
         return "spam"

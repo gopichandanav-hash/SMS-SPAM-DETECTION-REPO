@@ -3,10 +3,9 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.views import View
-from grpc import Status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 # Create your views here.
 
 from .models import ReportMessage
@@ -88,7 +87,7 @@ class ReadMessageAPIView(APIView):
         if not serializer.is_valid():
             return Response(
                 serializer.errors,
-                status= Status.HTTP_400_BAD_REQUEST
+                status=HTTP_400_BAD_REQUEST
             )
 
         messages = serializer.validated_data["messages"]
