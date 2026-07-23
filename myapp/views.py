@@ -6,6 +6,14 @@ from django.views import View
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+
+
+class RootView(View):
+    def get(self, request):
+        return HttpResponse("SMS Spam Detection API is running", content_type="text/plain")
+
+    def head(self, request):
+        return HttpResponse(status=200)
 # Create your views here.
 
 from .models import ReportMessage
