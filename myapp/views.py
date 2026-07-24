@@ -89,7 +89,7 @@ class AnalyticsView(View):
 class ReadMessageAPIView(APIView):
 
     def post(self, request):
-        print(request.data)
+        print("data recieved")
         serializer = SmsRequestSerializer(data=request.data)
 
         if not serializer.is_valid():
@@ -103,6 +103,7 @@ class ReadMessageAPIView(APIView):
         results = []
 
         for sms in messages:
+            print("Processing SMS")
 
             prediction = predict_sms(sms["body"])
 
