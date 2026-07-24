@@ -25,6 +25,7 @@ TOKENIZER_PATH = BASE_DIR / "lstm_tokenizer.pkl"
 
 MODEL = None
 TOKENIZER = None
+LOAD_FAILURE = None
 
 try:
     STOP_WORDS = set(stopwords.words("english"))
@@ -49,14 +50,31 @@ translator = Translator() if Translator is not None else None
 
 
 def _load_model_and_tokenizer():
-    global MODEL, TOKENIZER
+    global MODEL, TOKENIZER, LOAD_FAILURE
 
-    if MODEL is None and load_model is not None and MODEL_PATH.exists():
-        MODEL = load_model(MODEL_PATH)
+    if MODEL is not None and TOKENIZER is not None:
+        return MODEL, TOKENIZER
+
+    if LOAD_FAILURE is not None:
+        return MODEL, TOKENIZER
+
+    if load_model is not None and MODEL_PATH.exists():
+        try:
+            MODEL = load_model(MODEL_PATH)
+        except Exception as exc:
+            LOAD_FAILURE = exc
+            MODEL = None
+            print(f"Unable to load Keras model: {exc}")
 
     if TOKENIZER is None and TOKENIZER_PATH.exists():
-        with TOKENIZER_PATH.open("rb") as handle:
-            TOKENIZER = pickle.load(handle)
+        try:
+            with TOKENIZER_PATH.open("rb") as handle:
+                TOKENIZER = pickle.load(handle)
+        except Exception as exc:
+            if LOAD_FAILURE is None:
+                LOAD_FAILURE = exc
+            TOKENIZER = None
+            print(f"Unable to load tokenizer: {exc}")
 
     return MODEL, TOKENIZER
 
@@ -89,18 +107,22 @@ def predict_sms(body):
     if model is None or tokenizer is None or pad_sequences is None:
         return "ham"
 
-    translated = translate_to_english(body)
-    cleaned = preprocess(translated)
+    try:
+        translated = translate_to_english(body)
+        cleaned = preprocess(translated)
 
-    sequence = tokenizer.texts_to_sequences([cleaned])
-    padded = pad_sequences(
-        sequence,
-        maxlen=MAX_LENGTH,
-        padding="post",
-        truncating="post"
-    )
+        sequence = tokenizer.texts_to_sequences([cleaned])
+        padded = pad_sequences(
+            sequence,
+            maxlen=MAX_LENGTH,
+            padding="post",
+            truncating="post"
+        )
 
-    pred = model.predict(padded, verbose=0)[0][0]
+        pred = model.predict(padded, verbose=0)[0][0]
+    except Exception as exc:
+        print(f"Prediction fallback triggered: {exc}")
+        return "ham"
 
     if pred >= 0.5:
         return "spam"

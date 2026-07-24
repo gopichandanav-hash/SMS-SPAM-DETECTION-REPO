@@ -1,8 +1,11 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
 from .models import ReportMessage
+from . import ml_model
 
 
 class ReportMessageAPITests(TestCase):
@@ -40,3 +43,11 @@ class ReportMessageAPITests(TestCase):
         report = ReportMessage.objects.get()
         self.assertEqual(report.sender, "JD-620014-P")
         self.assertEqual(report.message, "Suspicious SMS detected")
+
+    def test_predict_sms_returns_fallback_when_model_load_fails(self):
+        with patch.object(ml_model, "load_model", side_effect=ValueError("boom")):
+            ml_model.MODEL = None
+            ml_model.TOKENIZER = None
+            result = ml_model.predict_sms("Win a free prize now")
+
+        self.assertEqual(result, "ham")
