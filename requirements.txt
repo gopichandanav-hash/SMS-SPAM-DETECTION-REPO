@@ -20,6 +20,4 @@ tensorflow-cpu==2.15.1
 googletrans==4.0.0rc1
 nltk==3.8.1
 
-tensorflow==2.19.0
-keras==3.11.0
-numpy==1.26.4
+
