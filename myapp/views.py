@@ -102,15 +102,36 @@ class ReadMessageAPIView(APIView):
 
         results = []
 
+        # for sms in messages:
+        #     print("Processing SMS")
+
+        #     prediction = predict_sms(sms["body"])
+
+        #     results.append({
+        #         "index": sms["index"],
+        #         "prediction": prediction
+        #     })
+        import traceback
+
         for sms in messages:
-            print("Processing SMS")
+            try:
+                print("Processing SMS")
 
-            prediction = predict_sms(sms["body"])
+                prediction = predict_sms(sms["body"])
 
-            results.append({
-                "index": sms["index"],
-                "prediction": prediction
-            })
+                print("Prediction:", prediction)
+
+                results.append({
+                    "index": sms["index"],
+                    "prediction": prediction
+                })
+
+            except Exception as e:
+                traceback.print_exc()
+                return Response(
+                    {"error": str(e)},
+                    status=500
+                )
 
         return Response({
             "count": len(results),
