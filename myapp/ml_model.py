@@ -51,7 +51,11 @@ translator = Translator() if Translator is not None else None
 
 def _load_model_and_tokenizer():
     global MODEL, TOKENIZER, LOAD_FAILURE
+    import tensorflow as tf
+    import keras
 
+    print("TensorFlow:", tf.__version__)
+    print("Keras:", keras.__version__)
     if MODEL is not None and TOKENIZER is not None:
         return MODEL, TOKENIZER
 
