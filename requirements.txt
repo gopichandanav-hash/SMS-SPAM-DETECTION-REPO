@@ -19,3 +19,5 @@ pandas==2.2.3
 tensorflow-cpu==2.15.1
 googletrans==4.0.0rc1
 nltk==3.8.1
+
+
